@@ -1,0 +1,69 @@
+graph TB
+    subgraph DoDIN [DoD Information Network]
+        A[DoD User / Agency Network]
+    end
+
+    subgraph CAP [Cloud Access Point]
+        B[DoD CAP / Boundary Firewalls]
+    end
+
+    subgraph GovCloud [AWS GovCloud US - IL5 Security Boundary]
+        
+        subgraph HubVPC [Management Hub VPC]
+            direction TB
+            C[Ingress / WAF] --> D[Transit Gateway]
+            E[Identity & Access Management AD] --- D
+            F[Auditing & Logging Repository] --- D
+        end
+
+        subgraph BIES_Prod [BIES Production VPC]
+            direction TB
+            
+            subgraph Public_Tier [Public / External Subnet]
+                G[NP2 Public Portal]
+                H[e-QIP Portal]
+                I[Public ALB / WAF]
+            end
+            
+            subgraph App_Tier [Application & Processing Subnet]
+                J[PIPS Core Logic]
+                K[FTS Fingerprint Engine]
+                L[OPIS Imaging Engine]
+                M[ARC-Nlets & NFW Integration]
+            end
+
+            subgraph Data_Tier [Data & Storage Subnet - Isolated]
+                N[(PIPS Oracle/PostgreSQL DB)]
+                O[OPIS S3 Document Store]
+                P[AWS KMS - Customer Managed Keys]
+            end
+        end
+
+        subgraph FieldVPC [Investigator Connectivity VPC]
+            Q[FWS Field Work APIs]
+            R[AppStream 2.0 / VDI Gateway]
+        end
+    end
+
+    %% Network Connections
+    A --> B
+    B --> C
+    D <--> Public_Tier
+    D <--> FieldVPC
+    
+    %% Tier-to-Tier Flows
+    Public_Tier --> App_Tier
+    App_Tier --> Data_Tier
+    FieldVPC --> App_Tier
+    
+    %% Key Security Constraints
+    P -.->|Encrypts at Rest| N
+    P -.->|Encrypts at Rest| O
+
+    classDef secure fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef data fill:#efebe9,stroke:#5d4037,stroke-width:2px;
+    classDef external fill:#eceff1,stroke:#607d8b,stroke-width:2px;
+    
+    class G,H,I,J,K,L,M,Q,R secure;
+    class N,O data;
+    class A,B external;
