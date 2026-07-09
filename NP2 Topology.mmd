@@ -1,0 +1,55 @@
+graph TD
+    subgraph Internet
+        A[NP2 General User]
+    end
+
+    subgraph Akamai
+        B[Akamai CDN]
+    end
+
+    subgraph NIPRNet
+        C[NIPRNet Boundary]
+    end
+
+    subgraph NP2_Production_Authorization_Boundary [NP2 Production (Boyers)]
+        direction TB
+
+        subgraph Web_VLAN [Webserver VLAN]
+            W1[boy-npprdweb01<br>Oracle HTTP Server]
+            W2[boy-npprdweb02<br>Oracle HTTP Server]
+        end
+
+        subgraph App_VLAN [Application VLAN]
+            SOA1[boy-npprdsoa01<br>Oracle SOA]
+            SOA2[boy-npprdsoa02<br>Oracle SOA]
+            IAM1[boy-npprdiam01<br>Oracle Access Mgr]
+            IAM2[boy-npprdiam02<br>Oracle Access Mgr]
+            OIG1[boy-npprodig01<br>Identity Governance]
+            OIG2[boy-npprodig02<br>Identity Governance]
+            WCP1[boy-npprdapp01<br>WebCenter Portal]
+            WCP2[boy-npprdapp02<br>WebCenter Portal]
+            WCP3[boy-npprdapp03<br>WebCenter Portal]
+            WCP4[boy-npprdapp04<br>WebCenter Portal]
+        end
+
+        subgraph DB_VLAN [Database VLAN]
+            DB1[boy-epprddb03<br>Oracle 19c DB]
+            DB2[boy-epprddb04<br>Oracle 19c DB]
+            OUD1[boy-npprdoud01<br>Oracle Unified Directory]
+            OUD2[boy-npprdoud02<br>Oracle Unified Directory]
+        end
+
+        %% Connections
+        W1 & W2 --> App_VLAN
+        App_VLAN --> DB_VLAN
+        App_VLAN --> OUD1 & OUD2
+    end
+
+    %% External Flow
+    A --> B
+    B --> C
+    C --> W1 & W2
+
+    %% Style Definitions
+    classDef border stroke:#ff0000,stroke-width:2px,stroke-dasharray:5 5
+    class NP2_Production_Authorization_Boundary border
