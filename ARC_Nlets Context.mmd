@@ -1,0 +1,45 @@
+graph TD
+    subgraph External_Users [Users]
+        A[Automated Leads<br>~50 at Ft. Meade]
+    end
+
+    subgraph External_Systems [External Systems]
+        direction LR
+        akamai[Akamai HTTP Web Server]
+        nlets_dc[Nlets Data Center]
+    end
+
+    subgraph BIES_Internal_Systems [BIES Internal Systems]
+        direction LR
+        np2[NP2 DCSA IS Portal]
+        nfw[NFW]
+    end
+
+    subgraph ARC_Nlets_Boundary [ARC-Nlets Security Boundary]
+        direction TB
+        arc_nlets_system["<b style='font-size:1.1em'>ARC-Nlets System</b><br><br>Application Server<br>Web Server<br>Database Server"]
+    end
+
+    subgraph Admin_Access [Administrative Access]
+        p_user[P-User<br>(dba/Sys Admin)]
+        nm[NM LDAP]
+    end
+
+    %% Data Flows
+    A --> akamai
+    akamai -- "HTTPS / Provide Identity Token" --> np2
+    np2 -- "HTTPS / BIES IDAM Solution" --> arc_nlets_system
+
+    nfw -- "Secure Web Services (TLS 1.2)<br>Created Nlets Request File" --> arc_nlets_system
+    arc_nlets_system -- "Secure Web Services (TLS 1.2)<br>Compiled Nlets Query Results" --> nfw
+
+    arc_nlets_system -- "IPSec VPN Tunnel (TLS 1.2)<br>Nlets Queries" --> nlets_dc
+    nlets_dc -- "IPSec VPN Tunnel (TLS 1.2)<br>Nlets Query Results" --> arc_nlets_system
+    
+    p_user -- "VPN/Intranet" --> arc_nlets_system
+    p_user -- "P-User Identity" --> nm
+
+
+    %% Styling
+    classDef boundary fill:#f0f8ff,stroke:#4169e1,stroke-width:2px;
+    class ARC_Nlets_Boundary boundary;
