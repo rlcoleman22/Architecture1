@@ -1,0 +1,62 @@
+graph TB
+    %% External Actors and Edge Security
+    subgraph External_Actors ["External Actors & Ingress"]
+        A["Automated Leads Users<br>~50 at Ft. Meade"] 
+        Akamai["Akamai Edge<br>WAF & Caching"]
+    end
+
+    %% Identity Provider
+    subgraph Identity_Mgmt ["BIES Identity Management"]
+        NP2["NP2 DCSA IS Portal<br>BIES IDAM Solution / PIV"]
+    end
+
+    %% BIES Internal Core
+    subgraph BIES_Core ["BIES Core Systems"]
+        NFW["NFW System<br>Non-Field Work"]
+    end
+
+    %% ARC-Nlets System Boundary
+    subgraph ARC_Nlets_Boundary ["ARC-Nlets Security Boundary (HVA)"]
+        direction TB
+        subgraph ARC_Nlets_Core ["DataMaxx Solution"]
+            App_Server["Application Server"]
+            Web_Server["Web Server"]
+            DB_Server["Database Server"]
+        end
+    end
+
+    %% External Interfaces
+    subgraph External_Partners ["External Partners"]
+        Nlets_DC["Nlets Data Center<br>24 States & Canada"]
+    end
+
+    %% Administrative Management
+    subgraph Admin_Mgmt ["Administrative Access"]
+        P_User["P-User<br>DBA / Sys Admin"]
+        LDAP["NM LDAP"]
+    end
+
+    %% Connections and Flows
+    A -->|Initiates Automated Leads| Akamai
+    Akamai -->|HTTPS / Identity Token| NP2
+    NP2 -->|HTTPS Authentication| Web_Server
+
+    %% NFW System Integration
+    NFW -->|TLS 1.2 Web Services<br>Created Nlets Request File| App_Server
+    App_Server -->|TLS 1.2 Web Services<br>Compiled Nlets Query Results| NFW
+
+    %% External Nlets Communication (Fixed bidirectional syntax)
+    App_Server -- "IPSec VPN Tunnel (TLS 1.2)<br>Queries & Results" --- Nlets_DC
+
+    %% Administration Flows
+    P_User -->|Secure VPN / Intranet| ARC_Nlets_Core
+    P_User -->|Admin Identity Verification| LDAP
+
+    %% Styling
+    classDef boundary fill:#f5f5f7,stroke:#1d1d1f,stroke-width:2px;
+    classDef hva fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px;
+    classDef external fill:#fce8e6,stroke:#d93025,stroke-width:2px;
+    
+    class ARC_Nlets_Boundary boundary;
+    class ARC_Nlets_Core hva;
+    class Nlets_DC,Akamai external;
