@@ -1,0 +1,41 @@
+graph TB
+    %% External Actors
+    subgraph External_Actors ["External Users"]
+        Applicant["Applicant / Subject<br>Completes SF-85/86"]
+        Agency_User["Agency Security Officer<br>Initiates & Reviews"]
+    end
+
+    %% Edge Security / Boundary
+    subgraph Edge_Security ["Internet Edge Boundary"]
+        Akamai["Akamai Edge<br>WAF & TLS Ingress"]
+    end
+
+    %% eQIP Security Boundary (System Under Test)
+    subgraph eQIP_Boundary ["eQIP Security Boundary (HVA)"]
+        direction TB
+        eQIP_System["<b style='font-size:1.1em'>eQIP System</b><br><br>Web Portal & Application Core<br>Questionnaire Database"]
+    end
+
+    %% BIES Internal Core Systems
+    subgraph BIES_Core ["BIES Core Processing"]
+        PIPS["PIPS System<br>Personnel Investigations Processing"]
+    end
+
+    %% User Interactions and Flows
+    Applicant -->|HTTPS / Enters Personal Data| Akamai
+    Agency_User -->|HTTPS / Initiates & Approves| Akamai
+    Akamai -->|Secure Web Traffic| eQIP_System
+
+    %% Core System Integrations (Fixed Parentheses Syntax via Quotes)
+    eQIP_System -->|"Secure Data Transfer<br>Subject-Entered Data (SF-85/86)"| PIPS
+
+    %% Styling Definitions
+    classDef boundary fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef hva fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef external fill:#fbe9e7,stroke:#d84315,stroke-width:2px;
+    classDef internal fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    
+    class eQIP_Boundary boundary;
+    class eQIP_System hva;
+    class Applicant,Agency_User,Akamai external;
+    class PIPS internal;
