@@ -1,0 +1,5 @@
+graph TD
+    Sys["System (e.g., ARC-Nlets HVA)"] -->|Maps to| AWS["AWS GovCloud Account / VPC Boundary"]
+    Block["Block (e.g., Processing Tier)"] -->|Maps to| Subnet["VPC Private Subnet & Security Group"]
+    Comp["Component (e.g., DataMaxx Core Broker)"] -->|Maps to| Compute["Amazon EC2 / RDS Instance"]
+    Part["Part (e.g., dm_core.jar / config.xml)"] -->|Maps to| Artifact["Deployment Artifact / SSM Parameter"]
